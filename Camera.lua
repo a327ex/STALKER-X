@@ -315,6 +315,16 @@ function Camera:setFollowStyle(follow_style)
     self.follow_style = follow_style
 end
 
+function Camera:setFollowLerp(x, y)
+    self.follow_lerp_x = x
+    self.follow_lerp_y = y or x
+end
+
+function Camera:setFollowLead(x, y)
+    self.follow_lead_x = x
+    self.follow_lead_y = y or x
+end
+
 function Camera:flash(duration, color)
     self.flash_duration = duration
     self.flash_color = color or self.flash_color
