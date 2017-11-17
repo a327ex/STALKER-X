@@ -5,6 +5,26 @@ becomes as easy as possible.
 
 # Contents
 
+* [Quick Start](#quick-start)
+   * [Creating a camera object](#creating-a-camera-object)
+   * [Following a target](#following-a-target)
+   * [Follow lerp and lead](#follow-lerp-and-lead)
+   * [Deadzones](#deadzones)
+      * [LOCKON](#lockon)
+      * [PLATFORMER](#platformer)
+      * [TOPDOWN](#topdown)
+      * [TOPDOWN_TIGHT](#topdown_tight)
+      * [SCREEN_BY_SCREEN](#screen_by_screen)
+      * [NO_DEADZONE](#no_deadzone)
+      * [Custom Deadzones](#custom-deadzones)
+   * [Shake](#shake)
+   * [Flash](#flash)
+   * [Fade](#fade)
+* [Tips](#tips)
+   * [Pixel Camera](#pixel-camera)
+   * [Fixed Timestep](#fixed-timestep)
+* [Documentation](#documentation)
+
 <br>
 
 # Quick Start
@@ -53,11 +73,17 @@ end
 
 And that would look like this:
 
+
+<p align="center">
+  <img src="https://i.imgur.com/CmGYXxW.gif"/>
+</p>
+
 <br>
 
 ## Follow lerp and lead
 
-We can change how sticky or how ahead of the target the camera is by changing the camera's follow lerp and lead variables:
+We can change how sticky or how ahead of the target the camera is by changing its lerp and lead variables. 
+Lerp is value that goes from 0 to 1. Closer to 0 means less sticky following, while closer to 1 means stickier following:
 
 ```lua
 function love.load()
@@ -68,14 +94,24 @@ end
 
 And that would look like this:
 
+<p align="center">
+  <img src="https://i.imgur.com/qtdTzU6.gif"/>
+</p>
+
+Lead is a value that goes from 0 to infinity. Closer to 0 means no look-ahead, while higher values will move the camera
+in the direction of the target's movement more. In practice good lead values will range from 2 to 10.
+
 ```lua
 function love.load()
     camera = Camera()
-    camera:setFollowLead(5)
+    camera:setFollowLerp(0.2)
+    camera:setFollowLead(10)
 end
 ```
 
-And that would look like this:
+<p align="center">
+  <img src="https://i.imgur.com/ZcOZ6n6.gif"/>
+</p>
 
 <br>
 
@@ -83,11 +119,10 @@ And that would look like this:
 
 Different deadzones define different areas in which the camera will or will not follow the target. 
 This can be useful to create all sorts of different behaviors like the some of the ones outlined in 
-[this article](https://www.gamasutra.com/blogs/ItayKeren/20150511/243083/Scroll_Back_The_Theory_and_Practice_of_Cameras_in_SideScrollers.php).
+[this article](https://www.gamasutra.com/blogs/ItayKeren/20150511/243083/Scroll_Back_The_Theory_and_Practice_of_Cameras_in_SideScrollers.php). All the examples below use a lerp
+value of 0.2 and a lead value of 0.
 
 ### LOCKON
-
-This is the default deadzone.
 
 ```lua
 function love.load()
@@ -96,7 +131,9 @@ function love.load()
 end
 ```
 
-<br>
+<p align="center">
+  <img src="https://i.imgur.com/9NCOySe.gif"/>
+</p>
 
 ### PLATFORMER
 
@@ -107,7 +144,9 @@ function love.load()
 end
 ```
 
-<br>
+<p align="center">
+  <img src="https://i.imgur.com/eNny8VU.gif"/>
+</p>
 
 ### TOPDOWN
 
@@ -118,6 +157,10 @@ function love.load()
 end
 ```
 
+<p align="center">
+  <img src="https://i.imgur.com/eA57zFd.gif"/>
+</p>
+
 ### TOPDOWN_TIGHT
 
 ```lua
@@ -126,6 +169,10 @@ function love.load()
     camera:setFollowStyle('TOPDOWN_TIGHT')
 end
 ```
+
+<p align="center">
+  <img src="https://i.imgur.com/FqiTqOM.gif"/>
+</p>
 
 ### SCREEN_BY_SCREEN
 
@@ -140,14 +187,20 @@ internal width/height to be the base `360x270`, and not the final `1440x1080` in
 
 ```lua
 function love.load()
-    camera = Camera(400, 300, 800, 600)
+    camera = Camera(200, 150, 400, 300)
     camera:setFollowStyle('SCREEN_BY_SCREEN')
 end
 ```
 
+<p align="center">
+  <img src="https://i.imgur.com/SN1S0Jo.gif"/>
+</p>
+
 ### NO_DEADZONE
 
 Without a deadzone the target will just be followed directly and without lerping or leading being applied.
+If the lerp value is 1 and the lead value is 0 (the default values for both of those) then the camera will act
+just like in the `NO_DEADZONE` mode, even though the default mode is `LOCKON`.
 
 ```lua
 function love.load()
@@ -155,6 +208,29 @@ function love.load()
     camera:setFollowStyle('NO_DEADZONE')
 end
 ```
+
+<p align="center">
+  <img src="https://i.imgur.com/TBQE88l.gif"/>
+</p>
+
+### Custom Deadzones
+
+Custom deadzones can be set with the `:setDeadzone(x, y, w, h)` call. Deadzones are set in camera coordinates, 
+with the top-left being `0, 0` and the bottom-right being `camera.w, camera.h`. So the following call:
+
+```lua
+function love.load()
+    local w, h = 400, 300
+    camera = Camera(w/2, h/2, w, h)
+    camera:setDeadzone(40, h/2 - 40, w - 80, 80)
+end
+```
+
+Will result in this:
+
+<p align="center">
+  <img src="https://i.imgur.com/rDpdvRI.gif"/>
+</p>
 
 <br>
 
@@ -173,9 +249,18 @@ The camera implementation is based on [this tutorial](https://jonny.morrill.me/e
 which provides a nice additional `frequency` parameter. Higher frequency means jerkier motion, and lower frequency means
 smoother motion.
 
+<p align="center">
+  <img src="https://i.imgur.com/0GaczA3.gif"/>
+</p>
+
+Note that if you have a target locked and you have `NO_DEADZONE` or a lerp of 1 set, then a screen shake won't happen
+since the camera will be locked tightly to the target.
+
 <br>
 
 ## Flash
+
+This is a good effect for when the player gets hit, lightning strikes, or similar events.
 
 ```lua
 function love.draw()
@@ -187,16 +272,22 @@ end
 
 function love.keypressed(key)
     if key == 'f' then
-        camera:flash(0.2, {0, 0, 0, 255})
+        camera:flash(0.05, {0, 0, 0, 255})
     end
 end
 ```
 
-The example above will fill the screen with the black color for 0.2 seconds, which looks like this:
+The example above will fill the screen with the black color for 0.05 seconds, which looks like this:
+
+<p align="center">
+  <img src="https://i.imgur.com/UkhiyzE.gif"/>
+</p>
 
 <br>
 
 ## Fade
+
+This is a good effect for transitions between levels.
 
 ```lua
 function love.draw()
@@ -221,4 +312,121 @@ In the example above, when `f` is pressed the screen will be gradually filled ov
 and then it will remain covered. If `g` is pressed after that then the screen will gradually go back to normal over 1 second.
 The default color that covers the screen initially is `{0, 0, 0, 0}`. 
 
+<p align="center">
+  <img src="https://i.imgur.com/o3r2noG.gif"/>
+</p>
+
 <br>
+
+# Tips
+
+## Pixel Camera
+
+All the gifs above were created with what I call a pixel art setup. In that everything is drawn to a canvas at a base resolution
+and then that canvas is scaled to the final screen using the `nearest` filter mode. This is how a chunky pixel look can be achieved and it's generally how pixel art is scaled in games. The advantages of this method is that you only have to care
+about a single resolution and then everything else takes care of itself. The way this setup looks like in LÖVE code could go
+something like this:
+
+```lua
+function love.load()
+    love.graphics.setDefaultFilter('nearest', 'nearest') -- scale everything with nearest neighbor
+    canvas = love.graphics.newCanvas(400, 300)
+end
+
+function love.draw()
+    love.graphics.setCanvas(canvas)
+    love.graphics.clear()
+    -- draw the game here
+    love.graphics.setCanvas()
+    
+    -- Draw the 400x300 canvas scaled by 2 to a 800x600 screen
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.setBlendMode('alpha', 'premultiplied')
+    love.graphics.draw(canvas, 0, 0, 0, 2, 2)
+    love.graphics.setBlendMode('alpha')
+end
+```
+
+All the gifs above followed this code. It's a base resolution of `400x300` being drawn at a scale of 2 to a `800x600` screen.
+
+Now, this relates to the camera in that to make the camera work with this setup we need to tell it what's the base resolution
+we're using. In this case it's `400x300` and so we can create the camera object specifying these values:
+
+```lua
+function love.load()
+    camera = Camera(200, 150, 400, 300)
+    ...
+end
+```
+
+The third and fourth arguments of the `Camera` call are for the internal width and height of the camera, and in this case
+they should match the base resolution. If those arguments are omitted then it will default to whatever value is returned
+by the `love.graphics.getWidth` and `love.graphics.getHeight` calls. In a pixel setup like this omitting those values is 
+problematic because then the camera would assume an internal resolution of `800x600` which would make everything not work properly.
+
+<br>
+
+## Fixed Timestep
+
+If you're using a variable timestep you might notice a jerky motion when the camera tries to follow a target tightly.
+This can be fixed by decreasing the lerp value, or more cleanly by using a fixed timestep setup. The code below is based
+on the "Free the Physics" section of [this article](https://gafferongames.com/post/fix_your_timestep/).
+
+```lua
+-- LÖVE 0.10.2 fixed timestep loop
+function love.run()
+    if love.math then love.math.setRandomSeed(os.time()) end
+    if love.load then love.load(arg) end
+    if love.timer then love.timer.step() end
+
+    local dt = 0
+    local fixed_dt = 1/60
+    local accumulator = 0
+
+    while true do
+        if love.event then
+            love.event.pump()
+            for name, a, b, c, d, e, f in love.event.poll() do
+                if name == 'quit' then
+                    if not love.quit or not love.quit() then
+                        return a
+                    end
+                end
+                love.handlers[name](a, b, c, d, e, f)
+            end
+        end
+
+        if love.timer then
+            love.timer.step()
+            dt = love.timer.getDelta()
+        end
+
+        accumulator = accumulator + dt
+        while accumulator >= fixed_dt do
+            if love.update then love.update(fixed_dt) end
+            accumulator = accumulator - fixed_dt
+        end
+
+        if love.graphics and love.graphics.isActive() then
+            love.graphics.clear(love.graphics.getBackgroundColor())
+            love.graphics.origin()
+            if love.draw then love.draw() end
+            love.graphics.present()
+        end
+
+        if love.timer then love.timer.sleep(0.0001) end
+    end
+end
+```
+
+<br>
+
+# DOCUMENTATION
+
+*TODO*
+
+<br>
+
+# LICENSE
+
+You can do whatever you want with this. See the [LICENSE](https://github.com/SSYGEA/STALKER-X/blob/master/LICENSE).
