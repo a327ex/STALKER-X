@@ -24,6 +24,26 @@ becomes as easy as possible.
    * [Pixel Camera](#pixel-camera)
    * [Fixed Timestep](#fixed-timestep)
 * [Documentation](#documentation)
+   * [Camera](#camerax-y-w-h-scale-rotation)
+   * [update](#updatedt)
+   * [draw](#draw)
+   * [attach](#attach)
+   * [detach](#detach)
+   * [x, y](#x-y)
+   * [scale](#scale)
+   * [rotation](#rotation)
+   * [toWorldCoords](#toworldcoordsx-y)
+   * [toCameraCoords](#tocameracoordsx-y)
+   * [getMousePosition](#getmouseposition)
+   * [shake](#shakeintensity-duration-frequency-axes)
+   * [flash](#flashduration-color)
+   * [fade](#fadeduration-color)
+   * [follow](#followx-y)
+   * [setFollowStyle](#setfollowstylefollow_style)
+   * [setDeadzone](#setdeadzonex-y-w-h)
+   * [setFollowLerp](#setfollowlerpx-y)
+   * [setFollowLead](#setfollowleadx-y)
+   * [setBounds](#setboundsx-y-w-h)
 
 <br>
 
@@ -423,7 +443,313 @@ end
 
 # DOCUMENTATION
 
-*TODO*
+#### `Camera(x, y, w, h, scale, rotation)`
+
+Creates a new Camera.
+
+```lua
+camera = Camera()
+```
+
+Arguments:
+
+* `x=w/2` `(number)` - The camera's x position. Defaults to `w/2`
+* `y=h/2` `(number)` - The camera's y position. Defaults to `h/2`
+* `w=love.graphics.getWidth()` `(number)` - The camera's width. Defaults to `love.graphics.getWidth()`
+* `h=love.graphics.getHeight()` `(number)` - The camera's height. Defaults to `love.graphics.getHeight()`
+* `scale=1` `(number)` - The camera's scale. Defaults to `1`
+* `rotation=0` `(number)` - The camera's rotation. Defaults to `0`
+
+Returns:
+
+* `Camera` `(table)` - the Camera object
+
+---
+
+### `:update(dt)`
+
+Updates the camera.
+
+```lua
+camera:update(dt)
+```
+
+Arguments:
+
+* `dt` `(number)` - The time step delta
+
+---
+
+#### `:draw()`
+
+Draws the camera, drawing the deadzone if `draw_deadzone` is `true` and also drawing the `flash` and `fade` effects.
+
+```lua
+camera:draw()
+```
+
+---
+
+#### `:attach()`
+
+Attaches the camera, making all following draw operations be affected by the camera's translation, scale and rotation transformations.
+
+```lua
+camera:attach()
+-- draw the game here
+camera:detach()
+```
+
+---
+
+#### `:detach()`
+
+Detaches the camera, returning the transformation stack back to normal.
+
+```lua
+camera:attach()
+-- draw the game here
+camera:detach()
+```
+
+---
+
+#### `.x, .y`
+
+The camera's position. This is the center of the camera and not its top-left position. This can be changed directly although
+if you're using the `follow` function then changing this directly might result in bugs.
+
+```lua
+camera.x, camera.y = 0, 0
+```
+
+---
+
+#### `.scale`
+
+The camera's scale/zoom. 
+
+```lua
+camera.scale = 2
+```
+
+---
+
+#### `.rotation`
+
+The camera's rotation.
+
+```lua
+camera.rotation = math.pi/8
+```
+
+---
+
+#### `:toWorldCoords(x, y)`
+
+The same as [hump.camera:worldCoords](http://hump.readthedocs.io/en/latest/camera.html#camera:worldCoords). This takes in 
+a position in camera coordinates and translates it to world coordinates. An example of this is taking the position of the
+mouse and seeing where it is in the world.
+
+```lua
+mx, my = camera:toWorldCoords(love.mouse.getPosition())
+```
+
+Arguments:
+
+* `x` `(number)` - The x position in camera coordinates
+* `y` `(number)` - The y position in camera coordinates
+
+Returns:
+
+* `x` `(number)` - The x position in world coordinates
+* `y` `(number)` - The y position in world coordinates
+
+---
+
+#### `:toCameraCoords(x, y)`
+
+The same as [hump.camera:cameraCoords](http://hump.readthedocs.io/en/latest/camera.html#camera:cameraCoords). This takes in 
+a position in world coordinates and translates it to camera coordinates. An example of this is taking the position of the
+player and 
+
+```lua
+player_x, player_y = camera:toCameraCoords(player.x, player.y)
+love.graphics.line(player_x, player_y, love.mouse.getPosition())
+```
+
+Arguments:
+
+* `x` `(number)` - The x position in world coordinates
+* `y` `(number)` - The y position in world coordinates
+
+Returns:
+
+* `x` `(number)` - The x position in camera coordinates
+* `y` `(number)` - The y position in camera coordinates
+
+---
+
+#### `:getMousePosition()`
+
+Gets the position of the mouse in world coordinates. This position can also be accessed directly through `.mx, .my`.
+
+```lua
+mx, my = camera:getMousePosition()
+mx, my = camera.mx, camera.my
+```
+
+Returns:
+
+* `x` `(number)` - The x position of the mouse in world coordinates
+* `y` `(number)` - The y position of the mouse in world coordinates
+
+---
+
+#### `:shake(intensity, duration, frequency, axes)`
+
+Shakes the screen with intensity for a certain duration.
+
+```lua
+camera:shake(8, 1, 60, 'X')
+```
+
+Arguments:
+
+* `intensity` `(number)` - The intensity of the shake in pixels. This will be decreased along the duration of the shake.
+* `duration=1` `(number)` - The duration of the shake in seconds. Defaults to `1`
+* `frequency=60` `(number)` - The frequency of the shake. Higher = jerkier, lower = smoother. Defaults to `60`
+* `axes='XY'` `(string)` - The axes of the shake. Can be `'X'` for horizontal, `'Y'` for vertical or `'XY'` for both. Defaults to `'XY'`
+
+---
+
+#### `:flash(duration, color)`
+
+Fills the screen up with a color for a certain duration.
+
+```lua
+camera:flash(0.05, {0, 0, 0, 255})
+```
+
+Arguments:
+
+* `duration` `(number)` - The duration of the flash in seconds
+* `color={0, 0, 0, 255}` `(table[number])` - The color of the flash. Defaults to `{0, 0, 0, 255}`
+
+---
+
+#### `:fade(duration, color)`
+
+Slowly fills up the screen with a color along the duration.
+
+```lua
+camera:fade(1, {0, 0, 0, 255})
+```
+
+Arguments: 
+
+* `duration` `(number)` - The duration of the fade in seconds
+* `color` `(table[number])` - The target color of the fade
+
+---
+
+#### `:follow(x, y)`
+
+Follow the target according to the follow style and lerp, lead values.
+
+```lua
+camera:follow(player.x, player.y)
+```
+
+Arguments:
+
+* `x` `(number)` - The x position of the target in world coordinates
+* `y` `(number)` - The y position of the target in world coordinates
+
+---
+
+#### `:setFollowStyle(follow_style)`
+
+Sets the follow style to be used by `camera:follow`. Possible values are `'LOCKON'`, `'PLATFORMER'`, `'TOPDOWN'`, `'TOPDOWN_TIGHT'`, `'SCREEN_BY_SCREEN'` and `'NO_DEADZONE'`. This can also be changed directly through `.follow_style`.
+
+```lua
+camera:setFollowStyle('LOCKON')
+camera.follow_style = 'LOCKON'
+```
+
+Arguments:
+
+* `follow_style` `(string)` - The follow style to be used
+
+---
+
+#### `:setDeadzone(x, y, w, h)`
+
+Sets the deadzone directly. The follow style must be set to `nil` for this to work.
+
+```lua
+camera:setDeadzone(0, 0, w, h)
+```
+
+Arguments:
+
+* `x` `(number)` - The top-left x position of the deadzone in camera coordinates
+* `y` `(number)` - The top-left y position of the deadzone in camera coordinates
+* `w` `(number)` - The width of the deadzone
+* `h` `(number)` - The height of the deadzone
+
+---
+
+#### `:setFollowLerp(x, y)`
+
+Sets the lerp value. This can be accessed directly through `.follow_lerp_x` and `.follow_lerp_y`.
+
+```lua
+camera:setFollowLerp(0.2)
+camera.follow_lerp_x = 0.2
+camera.follow_lerp_y = 0.2
+```
+
+Arguments:
+
+* `x` `(number)` - The x lerp value
+* `y=x` `(number)` - The y lerp value. Defaults to the `x` value
+
+---
+
+#### `:setFollowLead(x, y)`
+
+Sets the lead value. This can be accessed directly through `.follow_lead_x` and `.follow_lead_y`.
+
+```lua
+camera:setFollowLead(10)
+camera.follow_lead_x = 10
+camera.follow_lead_y = 10
+```
+
+Arguments:
+
+* `x` `(number)` - The x lead value
+* `y=x` `(number)` The y lead value. Defaults to the `x` value
+
+---
+
+#### `:setBounds(x, y, w, h)`
+
+Sets the boundaries of the camera in world coordinates. The camera won't be able to move past those points.
+
+```lua
+camera:setBounds(0, 0, 800, 600)
+```
+
+Arguments:
+
+* `x` `(number)` - The top-left x position of the boundary
+* `y` `(number)` - The top-left y position of the boundary
+* `w` `(number)` - The width of the rectangle that defines the boundary
+* `h` `(number)` - The height of the rectangle that defines the boundary
+
+---
 
 <br>
 
