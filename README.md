@@ -466,7 +466,7 @@ Returns:
 
 ---
 
-### `:update(dt)`
+#### `:update(dt)`
 
 Updates the camera.
 
