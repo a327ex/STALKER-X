@@ -1,3 +1,27 @@
+--[[
+MIT License
+
+Copyright (c) 2017 SSYGEN
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+]]--
+
 local function lerp(a, b, x) return a + (b - a)*x end
 local function csnap(v, x) return math.ceil(v/x)*x - x/2 end
 
@@ -72,12 +96,9 @@ local function new(x, y, w, h, scale, rotation)
     }, Camera)
 end
 
-function Camera:attach(x, y, w, h)
-    local x, y = 0, 0
-    local w, h = w or self.w, h or self.h
-    local cx, cy = x + w/2, y + h/2
+function Camera:attach()
     love.graphics.push()
-    love.graphics.translate(cx, cy)
+    love.graphics.translate(self.w/2, self.h/2)
     love.graphics.scale(self.scale)
     love.graphics.rotate(self.rotation)
     love.graphics.translate(-self.x, -self.y)

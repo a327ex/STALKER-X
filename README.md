@@ -41,6 +41,7 @@ becomes as easy as possible.
    * [follow](#followx-y)
    * [setFollowStyle](#setfollowstylefollow_style)
    * [setDeadzone](#setdeadzonex-y-w-h)
+   * [draw_deadzone](#draw_deadzone)
    * [setFollowLerp](#setfollowlerpx-y)
    * [setFollowLead](#setfollowleadx-y)
    * [setBounds](#setboundsx-y-w-h)
@@ -319,11 +320,11 @@ end
 
 function love.keypressed(key)
     if key == 'f' then
-        camera:flash(1, {0, 0, 0, 255})
+        camera:fade(1, {0, 0, 0, 255})
     end
     
     if key == 'g' then
-        camera:flash(1, {0, 0, 0, 0})
+        camera:fade(1, {0, 0, 0, 0})
     end
 end
 ```
@@ -393,7 +394,7 @@ This can be fixed by decreasing the lerp value, or more cleanly by using a fixed
 on the "Free the Physics" section of [this article](https://gafferongames.com/post/fix_your_timestep/).
 
 ```lua
--- LÖVE 0.10.2 fixed timestep loop
+-- LÖVE 0.10.2 fixed timestep loop, Lua version
 function love.run()
     if love.math then love.math.setRandomSeed(os.time()) end
     if love.load then love.load(arg) end
@@ -437,6 +438,44 @@ function love.run()
         if love.timer then love.timer.sleep(0.0001) end
     end
 end
+```
+
+```moonscript
+-- LÖVE 0.10.2 fixed timestep loop, MoonScript version
+love.run = () ->
+  if love.math then love.math.setRandomSeed(os.time())
+  if love.load then love.load(arg)
+  if love.timer then love.timer.step()
+
+  dt = 0
+  fixed_dt = 1/60
+  accumulator = 0
+
+  while true
+    if love.event
+      love.event.pump()
+      for name, a, b, c, d, e, f in love.event.poll() do
+        if name == "quit"
+          if not love.quit or not love.quit()
+            return a
+        love.handlers[name](a, b, c, d, e, f)
+
+    if love.timer
+      love.timer.step()
+      dt = love.timer.getDelta()
+
+    accumulator += dt
+    while accumulator >= fixed_dt do
+      if love.update then love.update(fixed_dt)
+      accumulator -= fixed_dt
+
+    if love.graphics and love.graphics.isActive()
+      love.graphics.clear(love.graphics.getBackgroundColor())
+      love.graphics.origin()
+      if love.draw then love.draw()
+      love.graphics.present()
+
+    if love.timer then love.timer.sleep(0.0001)
 ```
 
 <br>
@@ -700,6 +739,16 @@ Arguments:
 
 ---
 
+#### `.draw_deadzone`
+
+Draws the deadzone if set to true. `camera:draw()` must be called outside the `camera:attach/detach` block for it to work.
+
+```lua
+camera.draw_deadzone = true
+```
+
+---
+
 #### `:setFollowLerp(x, y)`
 
 Sets the lerp value. This can be accessed directly through `.follow_lerp_x` and `.follow_lerp_y`.
@@ -755,4 +804,4 @@ Arguments:
 
 # LICENSE
 
-You can do whatever you want with this. See the [LICENSE](https://github.com/SSYGEA/STALKER-X/blob/master/LICENSE).
+You can do whatever you want with this. See the license at the top of the main file.
