@@ -162,6 +162,9 @@ function Camera:update(dt)
         if self.fade_timer > self.fade_duration then
             self.fade_timer = 0
             self.fading = false
+            if self.oncomplete then
+               self.oncomplete()
+            end
         end
     end
 
@@ -353,12 +356,13 @@ function Camera:flash(duration, color)
     self.flashing = true
 end
 
-function Camera:fade(duration, color)
+function Camera:fade(duration, color, oncomplete)
     self.fade_duration = duration
     self.base_fade_color = self.fade_color
     self.target_fade_color = color 
     self.fade_timer = 0
     self.fading = true
+    self.oncomplete = oncomplete
 end
 
 return setmetatable({new = new}, {__call = function(_, ...) return new(...) end})
