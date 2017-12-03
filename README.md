@@ -677,18 +677,19 @@ Arguments:
 
 ---
 
-#### `:fade(duration, color)`
+#### `:fade(duration, color, action)`
 
 Slowly fills up the screen with a color along the duration.
 
 ```lua
-camera:fade(1, {0, 0, 0, 255})
+camera:fade(1, {0, 0, 0, 255}, function() print(1) end)
 ```
 
 Arguments: 
 
 * `duration` `(number)` - The duration of the fade in seconds
 * `color` `(table[number])` - The target color of the fade
+* `action` `function` - An optional action that is run when the fade ends
 
 ---
 
