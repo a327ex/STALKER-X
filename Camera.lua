@@ -91,7 +91,7 @@ local function new(x, y, w, h, scale, rotation)
         follow_lead_x = 0, follow_lead_y = 0,
         deadzone = nil, bound = nil,
         draw_deadzone = false,
-        flash_duration = 1, flash_timer = 0, flash_color = {0, 0, 0, 255},
+        flash_duration = 1, flash_timer = 0, flash_color = {0, 0, 0, 1},
         fade_duration = 1, fade_timer = 0, fade_color = {0, 0, 0, 0},
     }, Camera)
 end
