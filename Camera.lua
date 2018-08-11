@@ -92,6 +92,7 @@ local function new(x, y, w, h, scale, rotation)
         deadzone = nil, bound = nil,
         draw_deadzone = false,
         flash_duration = 1, flash_timer = 0, flash_color = {0, 0, 0, 255},
+        last_horizontal_shake_amount = 0, last_vertical_shake_amount = 0,
         fade_duration = 1, fade_timer = 0, fade_color = {0, 0, 0, 0},
     }, Camera)
 end
@@ -178,7 +179,9 @@ function Camera:update(dt)
         vertical_shake_amount = vertical_shake_amount + getShakeAmplitude(self.vertical_shakes[i])
         if not self.vertical_shakes[i].shaking then table.remove(self.vertical_shakes, i) end
     end
+    self.x, self.y = self.x - self.last_horizontal_shake_amount, self.y - self.last_vertical_shake_amount
     self:move(horizontal_shake_amount, vertical_shake_amount)
+    self.last_horizontal_shake_amount, self.last_vertical_shake_amount = horizontal_shake_amount, vertical_shake_amount
 
     -- Follow -- 
     if not self.target_x and not self.target_y then return end
