@@ -293,7 +293,7 @@ end
 
 function love.keypressed(key)
     if key == 'f' then
-        camera:flash(0.05, {0, 0, 0, 255})
+        camera:flash(0.05, {0, 0, 0, 1})
     end
 end
 ```
@@ -320,7 +320,7 @@ end
 
 function love.keypressed(key)
     if key == 'f' then
-        camera:fade(1, {0, 0, 0, 255})
+        camera:fade(1, {0, 0, 0, 1})
     end
     
     if key == 'g' then
@@ -361,7 +361,7 @@ function love.draw()
     love.graphics.setCanvas()
     
     -- Draw the 400x300 canvas scaled by 2 to a 800x600 screen
-    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setBlendMode('alpha', 'premultiplied')
     love.graphics.draw(canvas, 0, 0, 0, 2, 2)
     love.graphics.setBlendMode('alpha')
@@ -667,13 +667,13 @@ Arguments:
 Fills the screen up with a color for a certain duration.
 
 ```lua
-camera:flash(0.05, {0, 0, 0, 255})
+camera:flash(0.05, {0, 0, 0, 1})
 ```
 
 Arguments:
 
 * `duration` `(number)` - The duration of the flash in seconds
-* `color={0, 0, 0, 255}` `(table[number])` - The color of the flash. Defaults to `{0, 0, 0, 255}`
+* `color={0, 0, 0, 1}` `(table[number])` - The color of the flash. Defaults to `{0, 0, 0, 1}`
 
 ---
 
@@ -682,7 +682,7 @@ Arguments:
 Slowly fills up the screen with a color along the duration.
 
 ```lua
-camera:fade(1, {0, 0, 0, 255}, function() print(1) end)
+camera:fade(1, {0, 0, 0, 1}, function() print(1) end)
 ```
 
 Arguments: 
