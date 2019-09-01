@@ -253,19 +253,19 @@ function Camera:update(dt)
     -- All other follow modes
     else
         -- Figure out how much the camera needs to scroll
-        if target_x < x then
+        if target_x < x + (dx1 + dx2 - x) then
             local d = target_x - dx1
             if d < 0 then scroll_x = d end
         end
-        if target_x > x then
+        if target_x > x - (dx1 + dx2 - x) then
             local d = target_x - dx2
             if d > 0 then scroll_x = d end
         end
-        if target_y < y then
+        if target_y < y + (dy1 + dy2 - y) then
             local d = target_y - dy1
             if d < 0 then scroll_y = d end
         end
-        if target_y > y then
+        if target_y > y - (dy1 + dy2 - y) then
             local d = target_y - dy2
             if d > 0 then scroll_y = d end
         end
